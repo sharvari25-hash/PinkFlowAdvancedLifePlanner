@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinkFlow - Advanced Life Planner</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pink: {
+                            450: '#F472B6', 
+                        },
+                        rose: {
+                            450: '#FB7185',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Quicksand', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="bg-gradient-to-br from-pink-400 via-rose-400 to-purple-400 min-h-screen font-sans text-gray-800 selection:bg-pink-200 selection:text-pink-900 overflow-x-hidden transition-colors duration-300" id="app-body">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Main Layout -->
+    <div class="container mx-auto p-4 lg:p-8 max-w-6xl">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 animate-fade-in">
+            <div class="glass p-4 rounded-2xl shadow-lg flex items-center gap-3">
+                <div class="bg-pink-500 text-white p-2 rounded-full shadow-md">
+                    <i class="fas fa-check-double text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">PinkFlow</h1>
+                    <p class="text-xs text-gray-500 font-semibold">DESIGN YOUR LIFE</p>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="theme-toggle" class="glass p-3 rounded-full hover:bg-white/80 transition-all shadow-md text-purple-600">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="glass px-4 py-2 rounded-xl flex items-center gap-3 shadow-md">
+                    <img src="https://ui-avatars.com/api/?name=Zakir&background=fbcfe8&color=db2777" alt="Profile" class="w-8 h-8 rounded-full border-2 border-pink-300">
+                    <div class="hidden sm:block">
+                        <p class="text-sm font-bold text-gray-700">Good Evening, Zakir 💖</p>
+                        <p class="text-xs text-pink-600 font-semibold" id="header-task-count">You have 0 tasks today</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Sidebar / Stats -->
+            <aside class="lg:col-span-1 space-y-6 animate-fade-in" style="animation-delay: 0.1s;">
+                <!-- Quick Actions -->
+                <div class="glass p-5 rounded-2xl shadow-lg space-y-3">
+                    <button id="btn-add-task" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-3 rounded-xl font-bold shadow-lg transform hover:scale-[1.02] transition-all flex justify-center items-center gap-2">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                    <button id="btn-focus-mode" class="w-full bg-white text-purple-600 border-2 border-purple-100 hover:border-purple-300 hover:bg-purple-50 py-3 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
+                        <i class="fas fa-stopwatch"></i> Focus Mode
+                    </button>
+                </div>
+
+                <!-- Navigation/Filters -->
+                <nav class="glass p-4 rounded-2xl shadow-lg">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3 ml-2">Smart Views</h3>
+                    <ul class="space-y-1" id="filter-nav">
+                        <!-- Populated by JS -->
+                    </ul>
+                </nav>
+
+                <!-- Mini Analytics -->
+                <div class="glass p-5 rounded-2xl shadow-lg">
+                    <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-pink-500"></i> Productivity
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-semibold text-gray-500">Weekly Goal</span>
+                                <span class="font-bold text-pink-600" id="weekly-progress-text">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="weekly-progress-bar" class="bg-gradient-to-r from-pink-400 to-purple-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
+                            <span>Tasks Done</span>
+                            <span class="font-bold text-gray-700" id="total-completed-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="lg:col-span-3 space-y-6 animate-fade-in" style="animation-delay: 0.2s;">
+                
+                <!-- View Header -->
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white drop-shadow-md" id="current-view-title">Today's Tasks</h2>
+                        <p class="text-white/80 text-sm mt-1" id="current-date-display">Saturday, 10 Jan</p>
+                    </div>
+                    
+                    <!-- View Toggles (List vs Kanban) -->
+                    <div class="glass px-2 py-1 rounded-lg flex gap-1">
+                        <button class="p-2 rounded hover:bg-white/50 text-pink-600 active-view" id="view-list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="p-2 rounded hover:bg-white/50 text-gray-400" id="view-kanban">
+                            <i class="fas fa-columns"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Task Container (List View) -->
+                <div id="task-list-container" class="space-y-3 pb-20">
+                    <!-- Tasks injected here -->
+                </div>
+
+                <!-- Kanban Container (Hidden by default) -->
+                <div id="kanban-container" class="hidden grid-cols-1 md:grid-cols-3 gap-4 h-[600px] overflow-x-auto pb-4">
+                    <!-- Columns: Todo, In Progress, Done -->
+                    <div class="kanban-col glass rounded-xl p-4 flex flex-col h-full" data-status="todo">
+                        <h3 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-gray-400"></span> To Do
+                        </h3>
+                        <div class="kanban-tasks flex-1 overflow-y-auto space-y-3 custom-scrollbar" id="kanban-todo"></div>
+                    </div>
+                    <div class="kanban-col glass rounded-xl p-4 flex flex-col h-full" data-status="inprogress">
+                        <h3 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-400"></span> In Progress
+                        </h3>
+                        <div class="kanban-tasks flex-1 overflow-y-auto space-y-3 custom-scrollbar" id="kanban-inprogress"></div>
+                    </div>
+                    <div class="kanban-col glass rounded-xl p-4 flex flex-col h-full" data-status="done">
+                        <h3 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-green-400"></span> Done
+                        </h3>
+                        <div class="kanban-tasks flex-1 overflow-y-auto space-y-3 custom-scrollbar" id="kanban-done"></div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals & Overlays -->
+
+    <!-- Add/Edit Task Modal -->
+    <div id="modal-task" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-fade-in transform scale-100 transition-all">
+            <div class="p-6 bg-gradient-to-r from-pink-50 to-purple-50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800" id="modal-title">New Task</h3>
+                <button id="btn-close-modal" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="task-form" class="p-6 space-y-4">
+                <input type="hidden" id="task-id">
+                
+                <!-- Title -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Title</label>
+                    <input type="text" id="task-title" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition-all placeholder-gray-300" placeholder="e.g. Study JavaScript">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Description</label>
+                    <textarea id="task-desc" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition-all placeholder-gray-300" placeholder="Details about your task..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Category -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Category</label>
+                        <select id="task-category" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all">
+                            <option value="Personal">🏠 Personal</option>
+                            <option value="Work">💼 Work</option>
+                            <option value="Study">📚 Study</option>
+                            <option value="Health">🧘‍♀️ Health</option>
+                            <option value="Finance">💰 Finance</option>
+                        </select>
+                    </div>
+                    <!-- Priority -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Priority</label>
+                        <select id="task-priority" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all">
+                            <option value="Low">🟢 Low</option>
+                            <option value="Medium" selected>🟡 Medium</option>
+                            <option value="High">🔴 High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Due Date -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Due Date</label>
+                        <input type="date" id="task-date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all">
+                    </div>
+                    <!-- Color Tag -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Color Tag</label>
+                        <div class="flex gap-2 items-center h-[46px]">
+                            <input type="radio" name="task-color" value="pink" class="w-6 h-6 text-pink-500 focus:ring-pink-500" checked>
+                            <input type="radio" name="task-color" value="blue" class="w-6 h-6 text-blue-500 focus:ring-blue-500">
+                            <input type="radio" name="task-color" value="green" class="w-6 h-6 text-green-500 focus:ring-green-500">
+                            <input type="radio" name="task-color" value="purple" class="w-6 h-6 text-purple-500 focus:ring-purple-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="button" id="btn-cancel-task" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold shadow-lg hover:shadow-xl hover:from-pink-600 hover:to-rose-600 transition-all transform hover:-translate-y-0.5">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div id="focus-overlay" class="fixed inset-0 bg-gray-900 z-[60] hidden flex flex-col items-center justify-center text-white transition-opacity duration-500">
+        <button id="btn-close-focus" class="absolute top-8 right-8 text-white/50 hover:text-white p-2">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+        
+        <div class="text-center space-y-8 animate-fade-in">
+            <div class="inline-block px-4 py-1 rounded-full bg-white/10 border border-white/20 text-sm font-medium tracking-wide">
+                POMODORO FOCUS
+            </div>
+            
+            <!-- Timer -->
+            <div class="text-9xl font-bold font-mono tracking-tighter drop-shadow-lg" id="timer-display">
+                25:00
+            </div>
+            
+            <p class="text-xl text-pink-200" id="focus-status">Time to focus!</p>
+
+            <div class="flex gap-4 justify-center">
+                <button id="btn-timer-toggle" class="w-16 h-16 rounded-full bg-white text-pink-600 flex items-center justify-center text-2xl shadow-lg hover:scale-110 transition-transform">
+                    <i class="fas fa-play ml-1"></i>
+                </button>
+                <button id="btn-timer-reset" class="w-16 h-16 rounded-full bg-white/10 text-white border-2 border-white/20 flex items-center justify-center text-xl hover:bg-white/20 transition-all">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
