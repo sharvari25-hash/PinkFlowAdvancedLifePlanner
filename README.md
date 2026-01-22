@@ -1,4 +1,4 @@
-# 🌸 PinkFlow - Advanced Life Planner
+# 🌸 PinkFlow - Advanced Life Planner 
 
 ![PinkFlow Banner](https://capsule-render.vercel.app/api?type=waving&color=gradient&height=300&section=header&text=PinkFlow&fontSize=90&animation=fadeIn&fontAlignY=38&desc=Design%20Your%20Life%20with%20Style&descAlignY=55&descAlign=50)
 
